@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
+import 'package:edge_library_app/shared/env/env.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 import 'package:option_result/option_result.dart';
 
@@ -10,7 +11,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:uno/uno.dart';
 
 final patronFacadeProvider = Provider<PatronFacade>((ref) {
-  final uno = Uno(baseURL: 'http://localhost:8080');
+  final uno = Uno(baseURL: Env.baseUrl);
 
   uno.interceptors.request.use((request) async {
     final token = await ref.read(identityFacadeProvider).getAuthToken();
