@@ -1,0 +1,52 @@
+# flyctl launch added from .gitignore
+# See https://www.dartlang.org/guides/libraries/private-files
+
+# Files and directories created by pub
+**/.dart_tool
+**/.packages
+**/pubspec.lock
+
+# Files and directories created by dart_frog
+**/build
+**/.dart_frog
+
+# Test related files
+**/coverage
+**/.env
+
+# flyctl launch added from build/.gitignore
+# See https://www.dartlang.org/guides/libraries/private-files
+
+# Files and directories created by pub
+build/**/.dart_tool
+build/**/.packages
+build/**/pubspec.lock
+
+# Files and directories created by dart_frog
+build/**/build
+build/**/.dart_frog
+
+# Test related files
+build/**/coverage
+build/**/.env
+
+# flyctl launch added from build/packages/edge_library_common/.gitignore
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+build/packages/edge_library_common/**/.dart_tool
+
+# flyctl launch added from build/packages/edge_library_data/.gitignore
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+build/packages/edge_library_data/**/.dart_tool
+
+# flyctl launch added from packages/edge_library_common/.gitignore
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+packages/edge_library_common/**/.dart_tool
+
+# flyctl launch added from packages/edge_library_data/.gitignore
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+packages/edge_library_data/**/.dart_tool
+fly.toml
