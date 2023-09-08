@@ -1,0 +1,25 @@
+name: edge_library_api
+description: An new Dart Frog application
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  dart_frog: ^1.0.0
+  dart_frog_auth: ^1.1.0
+  dart_jsonwebtoken: ^2.11.0
+  dotenv: ^4.1.0
+  edge_library_common:
+    path: ./packages/edge_library_common
+  edge_library_data:
+    path: ./packages/edge_library_data
+  postgrest: ^1.5.0
+  shelf_cors_headers: ^0.1.5
+  supabase: ^1.11.1
+
+dev_dependencies:
+  mocktail: ^0.3.0
+  test: ^1.19.2
+  very_good_analysis: ^5.0.0
