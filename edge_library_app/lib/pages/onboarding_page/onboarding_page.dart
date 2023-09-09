@@ -43,6 +43,7 @@ class OnboardingPage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           scrollViewBuilder: (direction, child) => SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Align(
               alignment: Alignment.center,
               child: ConstrainedBox(
