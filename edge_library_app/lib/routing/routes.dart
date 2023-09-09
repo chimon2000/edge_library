@@ -50,6 +50,6 @@ final routes = [
   GoRoute(
     name: 'patron',
     path: '/patron',
-    builder: (context, state) => PatronDetailScreen(),
+    builder: (context, state) => const PatronDetailScreen(),
   ),
 ];
