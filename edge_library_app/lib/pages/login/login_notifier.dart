@@ -35,8 +35,6 @@ class LoginNotifier extends AutoDisposeNotifier<LoginState> with LoggerMixin {
       },
     );
 
-    print('wtf');
-
     if (isOtpRequired) {
       final otpResult =
           await ref.read(identityFacadeProvider).fallbackLogin(identifier);
