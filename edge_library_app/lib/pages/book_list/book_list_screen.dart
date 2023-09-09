@@ -1,6 +1,5 @@
 import 'package:edge_library_app/entities/book/model/book.dart';
 import 'package:edge_library_app/entities/book/widgets/book_list_view.dart';
-import 'package:edge_library_app/entities/patron/model/patron.dart';
 import 'package:edge_library_app/entities/patron/widgets/patron_floating_action_button.dart';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/routing/router.dart';
