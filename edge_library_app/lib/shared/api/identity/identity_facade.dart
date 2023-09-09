@@ -1,13 +1,14 @@
 import 'package:edge_library_app/shared/logger/logger.dart';
-import 'package:edge_library_common/edge_library_common.dart';
+import 'package:equatable/equatable.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:option_result/option_result.dart';
 import 'package:passage_flutter/passage_flutter.dart';
 import 'package:passage_flutter/passage_flutter_models/passage_app_info.dart';
 import 'package:passage_flutter/passage_flutter_models/passage_error.dart';
 import 'package:passage_flutter/passage_flutter_models/passage_error_code.dart';
 import 'package:passage_flutter/passage_flutter_models/passage_user.dart';
 
-import 'package:result_dart/result_dart.dart';
 import 'package:riverpod/riverpod.dart';
 
 final identityFacadeProvider = Provider<IdentityFacade>((ref) {
@@ -33,31 +34,32 @@ class IdentityFacade with LoggerMixin {
     return await passage.getAuthToken();
   }
 
-  AsyncResult<PassageUser, AuthException> register(String identifier) async {
-    return tryCatch(() async {
+  Future<Result<PassageUser, AuthException>> register(String identifier) async {
+    try {
       await passage.register(identifier);
       final user = await passage.getCurrentUser();
 
       if (user == null) throw Exception();
 
-      return user;
-    }, (error, stackTrace) {
-      logger.warning('issue registering', error, stackTrace);
-      if (error is PassageError &&
-          error.code == PassageErrorCode.userCancelled) {
-        // User cancelled passkey prompt, do nothing.
-      } else if (identifier.isNotEmpty) {
-        logger.info('initiating fallback register', error, stackTrace);
+      return Ok(user);
+    } on PassageError catch (error) {
+      logger.warning('issue logging in', error);
 
-        return PassageOtpRequiredException();
-      }
+      return switch (error.code) {
+        'identifier_not_verified' => const Err(PassageOtpRequiredException()),
+        PassageErrorCode.passkeyError when identifier.isNotEmpty =>
+          const Err(PassageOtpRequiredException()),
+        _ => Err(_mapError(error)),
+      };
+    } catch (error) {
+      logger.warning('issue logging in', error);
 
-      return _mapError(error);
-    });
+      return Err(_mapError(error));
+    }
   }
 
-  AsyncResult<PassageUser, AuthException> login(String identifier) async {
-    final result = tryCatch(() async {
+  Future<Result<PassageUser, AuthException>> login(String identifier) async {
+    try {
       if (kIsWeb) {
         await passage.loginWithIdentifier(identifier);
       } else {
@@ -67,132 +69,148 @@ class IdentityFacade with LoggerMixin {
 
       if (user == null) throw Exception();
 
-      return user;
-    }, (error, stackTrace) {
-      logger.warning('issue logging in', error, stackTrace);
+      return Ok(user);
+    } on PassageError catch (error) {
+      logger.warning('issue logging in', error);
 
-      if (error is PassageError &&
-          error.code == PassageErrorCode.userCancelled) {
-        // User cancelled passkey prompt, do nothing.
-      } else if (identifier.isNotEmpty) {
-        logger.info('initiating fallback login', error, stackTrace);
+      return switch (error.code) {
+        'identifier_not_verified' => const Err(PassageOtpRequiredException()),
+        PassageErrorCode.passkeyError when identifier.isNotEmpty =>
+          const Err(PassageOtpRequiredException()),
+        _ => Err(_mapError(error)),
+      };
+    } catch (error) {
+      logger.warning('issue logging in', error);
 
-        debugPrint(error.toString());
-
-        return PassageOtpRequiredException();
-      }
-
-      return _mapError(error);
-    });
-
-    return result;
+      return Err(_mapError(error));
+    }
   }
 
-  AsyncResult<PassageUser, AuthException> activateOTP(
-      String otp, authFallbackId) async {
-    return tryCatch(() async {
+  Future<Result<PassageUser, AuthException>> activateOTP(
+    String otp,
+    authFallbackId,
+  ) async {
+    try {
       await passage.oneTimePasscodeActivate(otp, authFallbackId!);
       final user = await passage.getCurrentUser();
 
       if (user == null) throw Exception();
 
-      return user;
-    }, (error, stackTrace) {
-      logger.severe('issue activating OTP', error, stackTrace);
-      return _mapError(error);
-    });
+      return addPasskey();
+    } catch (error) {
+      logger.severe('issue activating OTP', error);
+      return Err(_mapError(error));
+    }
   }
 
-  AsyncResult<String, void> resendOTP({
+  Future<Result<String, AuthException>> resendOTP({
     required String userIdentifer,
     required bool isRegistering,
   }) async {
-    return tryCatch(() async {
+    try {
       final newOtpId = isRegistering
           ? await passage.newRegisterOneTimePasscode(userIdentifer)
           : await passage.newLoginOneTimePasscode(userIdentifer);
 
-      return newOtpId;
-    }, (error, stackTrace) {
-      logger.severe('issue resending OTP', error, stackTrace);
-      return unit;
-    });
+      return Ok(newOtpId);
+    } catch (error) {
+      logger.severe('issue resending OTP', error);
+      return Err(_mapError(error));
+    }
   }
 
-  AsyncResult<PassageUser, AuthException> addPasskey() async {
-    return tryCatch(() async {
+  Future<Result<PassageUser, AuthException>> addPasskey() async {
+    try {
       await passage.addPasskey();
 
       final user = await passage.getCurrentUser();
 
       if (user == null) throw Exception();
 
-      return user;
-    }, (error, stackTrace) {
-      logger.severe('issue adding passkey', error, stackTrace);
-      return _mapError(error);
-    });
+      return Ok(user);
+    } catch (error) {
+      logger.severe('issue adding passkey', error);
+      return Err(_mapError(error));
+    }
   }
 
   Future<void> signOut() async {
     await passage.signOut();
   }
 
-  AsyncResult<String, void> fallbackRegister(String identifier) async {
-    return tryCatch(() async {
+  Future<Result<String, dynamic>> fallbackRegister(String identifier) async {
+    try {
       final appInfo = await passage.getAppInfo();
+
       if (appInfo?.authFallbackMethod == PassageAuthFallbackMethod.otp) {
         final otpId = await passage.newRegisterOneTimePasscode(identifier);
-        return otpId;
+        return Ok(otpId);
       }
 
-      return '';
-    }, (error, stackTrace) {
-      logger.severe('issue signing out', error, stackTrace);
-
-      return unit;
-    });
+      return const Ok('');
+    } catch (error) {
+      logger.severe('issue signing out', error);
+      return Err(_mapError(error));
+    }
   }
 
-  AsyncResult<String, void> fallbackLogin(String identifier) async {
-    return tryCatch(() async {
+  Future<Result<String, dynamic>> fallbackLogin(String identifier) async {
+    try {
       final appInfo = await passage.getAppInfo();
       if (appInfo?.authFallbackMethod == PassageAuthFallbackMethod.otp) {
         final otpId = await passage.newLoginOneTimePasscode(identifier);
-        return otpId;
+        return Ok(otpId);
       }
 
-      return '';
-    }, (error, stackTrace) {
-      logger.severe('issue with fallback login', error, stackTrace);
-
-      return unit;
-    });
+      return const Ok('');
+    } catch (error) {
+      logger.severe('issue with fallback login', error);
+      return Err(_mapError(error));
+    }
   }
 
   AuthException _mapError(Object error) => switch (error) {
+        PassageOtpRequiredException() => error,
         PassageAuthException() => error,
         PassageError() => PassageAuthException(error),
         _ => UnknownException(error),
       };
 }
 
-sealed class AuthException implements Exception {
+sealed class AuthException extends Equatable implements Exception {
   const AuthException();
+
+  @override
+  List<Object?> get props => [];
 }
 
 class PassageAuthException implements AuthException {
   PassageAuthException(this.original);
 
   final PassageError original;
+
+  @override
+  List<Object?> get props => [original];
+
+  @override
+  bool? get stringify => true;
 }
 
 class PassageOtpRequiredException implements AuthException {
-  PassageOtpRequiredException();
+  const PassageOtpRequiredException();
+  @override
+  List<Object?> get props => [];
+  @override
+  bool? get stringify => true;
 }
 
 class UnknownException implements AuthException {
-  UnknownException(this.original);
+  const UnknownException(this.original);
 
   final Object original;
+
+  @override
+  List<Object?> get props => [original];
+  @override
+  bool? get stringify => true;
 }

@@ -1,3 +1,4 @@
+import 'package:edge_library_app/entities/patron/model/patron.dart';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/shared/extensions/build_context.dart';
 import 'package:edge_library_app/pages/login/login_notifier.dart';
@@ -16,27 +17,16 @@ class LoginPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(loginNotifierProvider.select((value) => value.result),
         (previous, next) {
-      next?.onSuccess((success) {
+      next?.inspect((success) {
         ref.invalidate(currentUserProvider);
+        ref.invalidate(patronProvider);
         if (context.mounted) context.go('/');
-      });
-      next?.onFailure((failure) {
-        final title = ref.read(loginNotifierProvider).isNewUser
-            ? 'Registration issue'
-            : 'Login issue';
-        switch (failure) {
-          case PassageAuthException(:final original)
-              when original.code != PassageErrorCode.passkeyError:
-            context.showError(title, original.message);
-
-            break;
-          default:
-        }
       });
     });
 
-    final label =
-        ref.watch(loginNotifierProvider).isNewUser ? 'Register' : 'Login';
+    final authActionLabel = ref.watch(loginNotifierProvider
+        .select((value) => value.isNewUser ? 'Register' : 'Login'));
+
     final switchLabel = !ref.watch(loginNotifierProvider).isNewUser
         ? 'Don\'t have an account? Register'
         : 'Already have an account? Log in';
@@ -50,17 +40,18 @@ class LoginPage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           scrollViewBuilder: (direction, child) => SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Align(
               alignment: Alignment.center,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints: const BoxConstraints(maxWidth: 400),
                 child: child,
               ),
             ),
           ),
           children: [
             Text(
-              label,
+              authActionLabel,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const Gap(12),
@@ -94,43 +85,57 @@ class LoginPage extends ConsumerWidget {
                 textCapitalization: TextCapitalization.none,
               ),
               const Gap(12),
+              TextButton(
+                onPressed: () =>
+                    ref.read(loginNotifierProvider.notifier).resetCode(),
+                child: const Text('Reset'),
+              ),
+              const Gap(12),
             ],
-            SizedBox(
-              width: 400,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final form = ref.read(_formKeyProvider);
+            ElevatedButton(
+              onPressed: () async {
+                final form = ref.read(_formKeyProvider);
 
-                  if (form.currentState!.validate()) {
-                    final notifier = ref.read(loginNotifierProvider);
-                    final identifier = ref
-                        .read(textEditingControllerProvider('identifier'))
-                        .text;
-                    final otp =
-                        ref.read(textEditingControllerProvider('otp')).text;
+                if (form.currentState!.validate()) {
+                  final notifier = ref.read(loginNotifierProvider);
+                  final identifier = ref
+                      .read(textEditingControllerProvider('identifier'))
+                      .text;
+                  final otp =
+                      ref.read(textEditingControllerProvider('otp')).text;
 
-                    if (notifier.isOtpRequired) {
-                      ref
+                  if (notifier.isOtpRequired) {
+                    ref
+                        .read(loginNotifierProvider.notifier)
+                        .activateOtp(otp, identifier);
+
+                    return;
+                  }
+
+                  final result = notifier.isNewUser
+                      ? await ref
                           .read(loginNotifierProvider.notifier)
-                          .activateOtp(otp, identifier);
-
-                      return;
-                    }
-
-                    if (notifier.isNewUser) {
-                      await ref
-                          .read(loginNotifierProvider.notifier)
-                          .register(identifier);
-                    } else {
-                      await ref
+                          .register(identifier)
+                      : await ref
                           .read(loginNotifierProvider.notifier)
                           .login(identifier);
+
+                  result.inspectErr((failure) {
+                    final title = ref.read(loginNotifierProvider).isNewUser
+                        ? 'Registration issue'
+                        : 'Login issue';
+
+                    switch (failure) {
+                      case PassageAuthException(:final original):
+                        context.showError(title, original.message);
+
+                        break;
+                      default:
                     }
-                  }
-                },
-                child: Text(label),
-              ),
+                  });
+                }
+              },
+              child: Text(authActionLabel),
             ),
             const Gap(6),
             TextButton(
