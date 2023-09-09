@@ -15,7 +15,6 @@ dependencies:
     path: ./packages/edge_library_common
   edge_library_data:
     path: ./packages/edge_library_data
-  postgrest: ^1.5.0
   shelf_cors_headers: ^0.1.5
   supabase: ^1.11.1
 
