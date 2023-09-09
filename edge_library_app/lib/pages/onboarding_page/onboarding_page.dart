@@ -1,6 +1,7 @@
 import 'package:edge_library_app/entities/patron/model/patron.dart';
 import 'package:edge_library_app/pages/onboarding_page/onboarding_notifier.dart';
 import 'package:edge_library_app/routing/router.dart';
+import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:flextras/flextras.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,18 @@ class OnboardingPage extends ConsumerWidget {
     });
 
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            child: const Text('Sign Out'),
+            onPressed: () async {
+              await ref.read(identityFacadeProvider).signOut();
+              ref.invalidate(currentUserProvider);
+              if (context.mounted) context.go('/');
+            },
+          )
+        ],
+      ),
       body: Form(
         key: ref.watch(_formKeyProvider),
         child: ExpandedScrollingColumn(
