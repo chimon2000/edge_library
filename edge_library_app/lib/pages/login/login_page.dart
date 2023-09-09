@@ -58,6 +58,8 @@ class LoginPage extends ConsumerWidget {
             TextFormField(
               controller:
                   ref.watch(textEditingControllerProvider('identifier')),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'This field is required' : null,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'example@passage.id',
@@ -73,6 +75,8 @@ class LoginPage extends ConsumerWidget {
             if (isOtpRequired) ...[
               TextFormField(
                 obscureText: true,
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'This field is required' : null,
                 controller: ref.watch(textEditingControllerProvider('otp')),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),

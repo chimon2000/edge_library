@@ -2,6 +2,7 @@ import 'package:edge_library_app/entities/patron/model/patron.dart';
 import 'package:edge_library_app/pages/onboarding_page/onboarding_notifier.dart';
 import 'package:edge_library_app/routing/router.dart';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
+import 'package:edge_library_app/shared/extensions/build_context.dart';
 import 'package:flextras/flextras.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,6 +67,8 @@ class OnboardingPage extends ConsumerWidget {
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 14.0, horizontal: 10.0),
               ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'This field is required' : null,
               keyboardType: TextInputType.emailAddress,
               autocorrect: false,
               autofillHints: const [AutofillHints.name],
@@ -84,7 +87,14 @@ class OnboardingPage extends ConsumerWidget {
                     final name =
                         ref.read(textEditingControllerProvider('name')).text;
 
-                    await notifier.createPatron(name);
+                    final result = await notifier.createPatron(name);
+
+                    result.inspectErr((failure) {
+                      context.showError(
+                        'Unexpected issue',
+                        'There was an unexpected issue with your request',
+                      );
+                    });
                   }
                 },
                 child: const Text('Create Account'),
