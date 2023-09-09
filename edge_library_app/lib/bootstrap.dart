@@ -10,6 +10,8 @@ import 'package:logging/logging.dart';
 import 'package:loggy/loggy.dart';
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+  Loggy.initLoggy();
+
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     final level = logLevelMap.getOrDefault(record.level, LogLevel.info);
