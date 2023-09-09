@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/shared/env/env.dart';
+import 'package:edge_library_app/shared/logger/logger.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 import 'package:option_result/option_result.dart';
 
@@ -23,63 +24,46 @@ final patronFacadeProvider = Provider<PatronFacade>((ref) {
   return PatronFacade(uno);
 });
 
-class PatronFacade {
+class PatronFacade with LoggerMixin {
   const PatronFacade(this.uno);
 
   final Uno uno;
 
   Future<Result<GetPatronResponse, Exception>> getPatron() async {
-    Future<Result<GetPatronResponse, Exception>> result =
-        catchResultAsync(() async {
-      try {
-        final result =
-            await uno.get('/patron', responseType: ResponseType.plain);
+    try {
+      final result = await uno.get('/patron', responseType: ResponseType.plain);
 
-        if (result.status == HttpStatus.notFound) return Err(Exception());
+      if (result.status == HttpStatus.notFound) return Err(Exception());
 
-        return switch (result) {
-          Response(:final status) when status != HttpStatus.ok =>
-            Err(Exception()),
-          _ => Ok(GetPatronResponseMapper.fromJson(json.decode(result.data))),
-        };
-      } on UnoError catch (e) {
-        return Err(e);
-      }
-    });
-
-    if (result case Err(:final value)) {
-      print(value);
+      return switch (result) {
+        Response(:final status) when status != HttpStatus.ok =>
+          Err(Exception()),
+        _ => Ok(GetPatronResponseMapper.fromJson(json.decode(result.data))),
+      };
+    } on UnoError catch (e, stackTrace) {
+      logger.warning('error getting patron', e, stackTrace);
+      return Err(e);
     }
-
-    return result;
   }
 
   Future<Result<GetPatronResponse, Exception>> createPatron(
       String name, String email) async {
-    Future<Result<GetPatronResponse, Exception>> result =
-        catchResultAsync(() async {
-      try {
-        final result = await uno.post(
-          '/patron',
-          data: CreatePatronRequest(name, email).toJson(),
-        );
+    try {
+      final result = await uno.post(
+        '/patron',
+        data: CreatePatronRequest(name, email).toJson(),
+      );
 
-        if (result.status == HttpStatus.notFound) return Err(Exception());
+      if (result.status == HttpStatus.notFound) return Err(Exception());
 
-        return switch (result) {
-          Response(:final status) when status != HttpStatus.ok =>
-            Err(Exception()),
-          _ => Ok(GetPatronResponseMapper.fromJson(result.data)),
-        };
-      } on UnoError catch (e) {
-        return Err(e);
-      }
-    });
-
-    if (result case Err(:final value)) {
-      print(value);
+      return switch (result) {
+        Response(:final status) when status != HttpStatus.ok =>
+          Err(Exception()),
+        _ => Ok(GetPatronResponseMapper.fromJson(result.data)),
+      };
+    } on UnoError catch (e, stackTrace) {
+      logger.warning('error getting patron', e, stackTrace);
+      return Err(e);
     }
-
-    return result;
   }
 }
