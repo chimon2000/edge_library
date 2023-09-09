@@ -1,5 +1,5 @@
 import 'package:edge_library_app/entities/patron/model/patron.dart';
-import 'package:edge_library_app/pages/onboarding_page/onboarding_notifier.dart';
+import 'package:edge_library_app/pages/onboarding/onboarding_notifier.dart';
 import 'package:edge_library_app/routing/router.dart';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/shared/extensions/build_context.dart';
@@ -9,8 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-class OnboardingPage extends ConsumerWidget {
-  const OnboardingPage({super.key});
+class OnboardingScreen extends ConsumerWidget {
+  const OnboardingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
