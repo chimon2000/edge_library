@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:edge_library_app/entities/patron/model/patron.dart';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/routing/routes.dart';
+import 'package:edge_library_app/shared/extensions/either_option.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,7 +53,8 @@ class AuthenticationGuard extends ValueNotifier<AuthenticationState> {
 }
 
 final currentUserProvider = FutureProvider<PassageUser?>((ref) async {
-  return ref.watch(identityFacadeProvider).checkForAuthenticatedUser();
+  return (await ref.watch(identityFacadeProvider).checkForAuthenticatedUser())
+      .getOrThrow();
 });
 
 final authenticationGuardProvider =

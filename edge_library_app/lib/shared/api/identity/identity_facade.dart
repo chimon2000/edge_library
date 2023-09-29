@@ -20,18 +20,28 @@ class IdentityFacade with LoggerMixin {
 
   PassageFlutter passage;
 
-  Future<PassageUser?> checkForAuthenticatedUser() async {
-    final user = await passage.getCurrentUser();
+  Future<Result<PassageUser?, Exception>> checkForAuthenticatedUser() async {
+    try {
+      final user = await passage.getCurrentUser();
 
-    if (user == null) {
-      passage.signOut();
+      if (user == null) {
+        passage.signOut();
+      }
+
+      return Ok(user);
+    } catch (e, stackTrace) {
+      logger.info('issue checking for authenticated user', e, stackTrace);
+
+      return Err(Exception());
     }
-
-    return user;
   }
 
-  Future<String?> getAuthToken() async {
-    return await passage.getAuthToken();
+  Future<Result<String?, AuthException>> getAuthToken() async {
+    try {
+      return Ok(await passage.getAuthToken());
+    } catch (e) {
+      return Err(_mapError(e));
+    }
   }
 
   Future<Result<PassageUser, AuthException>> register(String identifier) async {
@@ -134,8 +144,13 @@ class IdentityFacade with LoggerMixin {
     }
   }
 
-  Future<void> signOut() async {
-    await passage.signOut();
+  Future<Result<None, AuthException>> signOut() async {
+    try {
+      await passage.signOut();
+      return const Ok(None());
+    } catch (e) {
+      return Err(_mapError(e));
+    }
   }
 
   Future<Result<String, dynamic>> fallbackRegister(String identifier) async {

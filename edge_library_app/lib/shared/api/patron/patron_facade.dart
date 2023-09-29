@@ -17,7 +17,7 @@ final patronFacadeProvider = Provider<PatronFacade>((ref) {
   uno.interceptors.request.use((request) async {
     final token = await ref.read(identityFacadeProvider).getAuthToken();
 
-    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Authorization'] = 'Bearer ${token.unwrapOr(null)}';
     return request;
   });
 
