@@ -2,6 +2,8 @@ import 'package:edge_library_app/entities/book/widgets/book_summary_view.dart';
 import 'package:edge_library_app/pages/book_detail/book_detail_notifier.dart';
 import 'package:edge_library_app/routing/router.dart';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
+import 'package:edge_library_app/widgets/error_retry_view.dart';
+import 'package:edge_library_common/edge_library_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -41,7 +43,11 @@ class BookDetailScreen extends ConsumerWidget {
       body: bookAsync.when(
         skipLoadingOnReload: true,
         data: BookDetailDataView.new,
-        error: BookDetailErrorView.new,
+        error: (error, stackTrace) => BookDetailErrorView(
+          error,
+          stackTrace,
+          id: id,
+        ),
         loading: BookDetailLoadingView.new,
       ),
     );
@@ -58,16 +64,32 @@ class BookDetailLoadingView extends StatelessWidget {
   }
 }
 
-class BookDetailErrorView extends StatelessWidget {
+class BookDetailErrorView extends ConsumerWidget {
   @visibleForTesting
-  const BookDetailErrorView(this.error, this.stackTrace, {super.key});
+  const BookDetailErrorView(
+    this.error,
+    this.stackTrace, {
+    super.key,
+    required this.id,
+  });
 
   final Object error;
   final StackTrace stackTrace;
+  final String id;
 
   @override
-  Widget build(BuildContext context) {
-    return Container();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: switch (error) {
+        GetBookResponseError(:final code) when code == 'NOT_FOUND' =>
+          const Text('This book does not exist'),
+        _ => ErrorRetryView(
+            message:
+                'There was an error with your request, please try again later.',
+            onRetry: () => ref.refresh(bookDetailNotifierProvider(id)),
+          ),
+      },
+    );
   }
 }
 
