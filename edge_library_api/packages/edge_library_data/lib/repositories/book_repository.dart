@@ -1,4 +1,5 @@
 import 'package:edge_library_common/edge_library_common.dart';
+import 'package:option_result/option_result.dart';
 import 'package:supabase/supabase.dart';
 
 class BookRepository {
@@ -6,60 +7,79 @@ class BookRepository {
 
   final SupabaseClient client;
 
-  Future<void> borrowBook(
+  Future<Result<None, Exception>> borrowBook(
     final int bookId,
     final String patronId,
   ) async {
-    print('borrowing book');
-    final book = await getBookById(bookId);
+    try {
+      print('borrowing book');
+      final bookResult = await getBookById(bookId);
 
-    if (book == null) throw Exception();
+      final book = bookResult.unwrap();
 
-    final borrowedCopiesResponse = await client
-        .from('borrowed_books')
-        .select<PostgrestResponse>('*', FetchOptions(count: CountOption.exact))
-        .eq('book_id', bookId)
-        .filter('is_active', 'eq', true);
+      if (book == null) throw Exception();
 
-    final borrowedCopiesCount = borrowedCopiesResponse.count ?? 0;
+      final borrowedCopiesResponse = await client
+          .from('borrowed_books')
+          .select<PostgrestResponse>(
+              '*', FetchOptions(count: CountOption.exact))
+          .eq('book_id', bookId)
+          .filter('is_active', 'eq', true);
 
-    if (book.copies <= borrowedCopiesCount) throw Exception();
+      final borrowedCopiesCount = borrowedCopiesResponse.count ?? 0;
 
-    await client.from('borrowed_books').upsert({
-      'book_id': bookId,
-      'patron_id': patronId,
-      'borrow_date': DateTime.now().toIso8601String(),
-      'return_date': null,
-    });
+      if (book.copies <= borrowedCopiesCount) throw Exception();
+
+      await client.from('borrowed_books').upsert({
+        'book_id': bookId,
+        'patron_id': patronId,
+        'borrow_date': DateTime.now().toIso8601String(),
+        'return_date': null,
+      });
+
+      return Ok(None());
+    } catch (e) {
+      return Err(Exception());
+    }
   }
 
-  Future<void> returnBook(
+  Future<Result<None, Exception>> returnBook(
     final int bookId,
     final String patronId,
   ) async {
-    print('returning book');
+    try {
+      print('returning book');
 
-    await client
-        .from('borrowed_books')
-        .update({'return_date': DateTime.now().toIso8601String()})
-        .eq('book_id', bookId)
-        .eq('patron_id', patronId);
+      await client
+          .from('borrowed_books')
+          .update({'return_date': DateTime.now().toIso8601String()})
+          .eq('book_id', bookId)
+          .eq('patron_id', patronId);
+
+      return Ok(None());
+    } catch (e) {
+      return Err(Exception());
+    }
   }
 
-  Future<List<Book>> getBooks(final String? search) async {
-    final baseQuery = client.from('books').select<PostgrestList>();
-    final books = search == null
-        ? await baseQuery
-            .order('title', ascending: true)
-            .withConverter((data) => data.map(BookMapper.fromMap))
-        : await baseQuery
-            .textSearch('title', search)
-            .withConverter((data) => data.map(BookMapper.fromMap));
+  Future<Result<List<Book>, Exception>> getBooks(final String? search) async {
+    try {
+      final baseQuery = client.from('books').select<PostgrestList>();
+      final books = search == null
+          ? await baseQuery
+              .order('title', ascending: true)
+              .withConverter((data) => data.map(BookMapper.fromMap))
+          : await baseQuery
+              .textSearch('title', search)
+              .withConverter((data) => data.map(BookMapper.fromMap));
 
-    return books.toList();
+      return Ok(books.toList());
+    } catch (e) {
+      return Err(Exception());
+    }
   }
 
-  Future<Book?> getBookById(int id) async {
+  Future<Result<Book?, Exception>> getBookById(int id) async {
     try {
       final book = await client
           .from('books')
@@ -69,10 +89,10 @@ class BookRepository {
           .withConverter(
               (data) => data == null ? null : BookMapper.fromMap(data));
 
-      return book;
+      return Ok(book);
     } catch (e) {
       print(e);
-      rethrow;
+      return Err(Exception());
     }
   }
 }

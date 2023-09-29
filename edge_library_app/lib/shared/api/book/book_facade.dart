@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/shared/env/env.dart';
 import 'package:edge_library_common/edge_library_common.dart';
+import 'package:option_result/option_result.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:uno/uno.dart';
 
@@ -12,7 +13,7 @@ final bookFacadeProvider = Provider<BookFacade>((ref) {
   uno.interceptors.request.use((request) async {
     final token = await ref.read(identityFacadeProvider).getAuthToken();
 
-    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Authorization'] = 'Bearer ${token.unwrapOr(null)}';
     return request;
   });
 
@@ -24,27 +25,58 @@ class BookFacade {
 
   final Uno uno;
 
-  Future<GetBooksResponse> getBooks() async {
-    final result = await uno.get('/books');
+  Future<Result<List<Book>, GetBooksResponseError>> getBooks() async {
+    try {
+      final result = await uno.get('/books');
 
-    return GetBooksResponseMapper.fromMap(result.data);
+      final jsonResult =
+          JsonResultMapper.fromMap<List<Book>, GetBooksResponseError>(
+              result.data);
+
+      return jsonResult.toResult();
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+      return Err(GetBooksResponseError());
+    }
   }
 
-  Future<GetBookResponse> getBookById(String id) async {
-    final result = await uno.get('/books/$id');
+  Future<Result<Book, GetBookResponseError>> getBookById(String id) async {
+    try {
+      final result = await uno.get('/books/$id');
 
-    return GetBookResponseMapper.fromMap(result.data);
+      if (result.status != HttpStatus.ok) {
+        return const Err(GetBookResponseError());
+      }
+
+      final jsonResult =
+          JsonResultMapper.fromMap<Book, GetBookResponseError>(result.data);
+      return jsonResult.toResult();
+    } catch (e, stackTrace) {
+      print(e);
+      print(stackTrace);
+
+      return const Err(GetBookResponseError());
+    }
   }
 
-  Future<bool> borrowBook(int id) async {
-    final response = await uno.post('/books/$id/borrow');
+  Future<Result<bool, Exception>> borrowBook(int id) async {
+    try {
+      final response = await uno.post('/books/$id/borrow');
 
-    return response.status == HttpStatus.accepted;
+      return Ok(response.status == HttpStatus.accepted);
+    } catch (e) {
+      return Err(Exception());
+    }
   }
 
-  Future<bool> returnBook(int id) async {
-    final response = await uno.put('/books/$id/borrow');
+  Future<Result<bool, Exception>> returnBook(int id) async {
+    try {
+      final response = await uno.put('/books/$id/borrow');
 
-    return response.status == HttpStatus.accepted;
+      return Ok(response.status == HttpStatus.accepted);
+    } catch (e) {
+      return Err(Exception());
+    }
   }
 }

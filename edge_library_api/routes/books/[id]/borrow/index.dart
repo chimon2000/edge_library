@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 import 'package:edge_library_data/edge_library_data.dart';
+import 'package:option_result/option_result.dart';
 
 FutureOr<Response> onRequest(
   RequestContext context,
@@ -48,7 +49,10 @@ Future<Response> _handlePost(
 
   if (patron == null) return Response.json(statusCode: HttpStatus.badRequest);
 
-  await bookRepository.borrowBook(id, patron.id);
+  final result = await bookRepository.borrowBook(id, patron.id);
 
-  return Response.json();
+  return switch (result) {
+    Ok() => Response.json(),
+    _ => Response.json(statusCode: HttpStatus.internalServerError),
+  };
 }

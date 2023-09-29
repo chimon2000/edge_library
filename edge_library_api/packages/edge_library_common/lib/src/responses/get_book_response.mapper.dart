@@ -5,14 +5,13 @@
 
 part of 'get_book_response.dart';
 
-class GetBookResponseMapper extends ClassMapperBase<GetBookResponse> {
-  GetBookResponseMapper._();
+class GetBookResponseErrorMapper extends ClassMapperBase<GetBookResponseError> {
+  GetBookResponseErrorMapper._();
 
-  static GetBookResponseMapper? _instance;
-  static GetBookResponseMapper ensureInitialized() {
+  static GetBookResponseErrorMapper? _instance;
+  static GetBookResponseErrorMapper ensureInitialized() {
     if (_instance == null) {
-      MapperContainer.globals.use(_instance = GetBookResponseMapper._());
-      BookMapper.ensureInitialized();
+      MapperContainer.globals.use(_instance = GetBookResponseErrorMapper._());
     }
     return _instance!;
   }
@@ -23,98 +22,103 @@ class GetBookResponseMapper extends ClassMapperBase<GetBookResponse> {
   }
 
   @override
-  final String id = 'GetBookResponse';
+  final String id = 'GetBookResponseError';
 
-  static Book _$data(GetBookResponse v) => v.data;
-  static const Field<GetBookResponse, Book> _f$data = Field('data', _$data);
+  static String? _$code(GetBookResponseError v) => v.code;
+  static const Field<GetBookResponseError, String> _f$code =
+      Field('code', _$code, opt: true);
+  static String? _$message(GetBookResponseError v) => v.message;
+  static const Field<GetBookResponseError, String> _f$message =
+      Field('message', _$message, mode: FieldMode.member);
 
   @override
-  final Map<Symbol, Field<GetBookResponse, dynamic>> fields = const {
-    #data: _f$data,
+  final Map<Symbol, Field<GetBookResponseError, dynamic>> fields = const {
+    #code: _f$code,
+    #message: _f$message,
   };
 
-  static GetBookResponse _instantiate(DecodingData data) {
-    return GetBookResponse(data.dec(_f$data));
+  static GetBookResponseError _instantiate(DecodingData data) {
+    return GetBookResponseError(code: data.dec(_f$code));
   }
 
   @override
   final Function instantiate = _instantiate;
 
-  static GetBookResponse fromMap(Map<String, dynamic> map) {
-    return _guard((c) => c.fromMap<GetBookResponse>(map));
+  static GetBookResponseError fromMap(Map<String, dynamic> map) {
+    return _guard((c) => c.fromMap<GetBookResponseError>(map));
   }
 
-  static GetBookResponse fromJson(String json) {
-    return _guard((c) => c.fromJson<GetBookResponse>(json));
+  static GetBookResponseError fromJson(String json) {
+    return _guard((c) => c.fromJson<GetBookResponseError>(json));
   }
 }
 
-mixin GetBookResponseMappable {
+mixin GetBookResponseErrorMappable {
   String toJson() {
-    return GetBookResponseMapper._guard(
-        (c) => c.toJson(this as GetBookResponse));
+    return GetBookResponseErrorMapper._guard(
+        (c) => c.toJson(this as GetBookResponseError));
   }
 
   Map<String, dynamic> toMap() {
-    return GetBookResponseMapper._guard(
-        (c) => c.toMap(this as GetBookResponse));
+    return GetBookResponseErrorMapper._guard(
+        (c) => c.toMap(this as GetBookResponseError));
   }
 
-  GetBookResponseCopyWith<GetBookResponse, GetBookResponse, GetBookResponse>
-      get copyWith => _GetBookResponseCopyWithImpl(
-          this as GetBookResponse, $identity, $identity);
+  GetBookResponseErrorCopyWith<GetBookResponseError, GetBookResponseError,
+          GetBookResponseError>
+      get copyWith => _GetBookResponseErrorCopyWithImpl(
+          this as GetBookResponseError, $identity, $identity);
   @override
   String toString() {
-    return GetBookResponseMapper._guard((c) => c.asString(this));
+    return GetBookResponseErrorMapper._guard((c) => c.asString(this));
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (runtimeType == other.runtimeType &&
-            GetBookResponseMapper._guard((c) => c.isEqual(this, other)));
+            GetBookResponseErrorMapper._guard((c) => c.isEqual(this, other)));
   }
 
   @override
   int get hashCode {
-    return GetBookResponseMapper._guard((c) => c.hash(this));
+    return GetBookResponseErrorMapper._guard((c) => c.hash(this));
   }
 }
 
-extension GetBookResponseValueCopy<$R, $Out>
-    on ObjectCopyWith<$R, GetBookResponse, $Out> {
-  GetBookResponseCopyWith<$R, GetBookResponse, $Out> get $asGetBookResponse =>
-      $base.as((v, t, t2) => _GetBookResponseCopyWithImpl(v, t, t2));
+extension GetBookResponseErrorValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, GetBookResponseError, $Out> {
+  GetBookResponseErrorCopyWith<$R, GetBookResponseError, $Out>
+      get $asGetBookResponseError =>
+          $base.as((v, t, t2) => _GetBookResponseErrorCopyWithImpl(v, t, t2));
 }
 
-abstract class GetBookResponseCopyWith<$R, $In extends GetBookResponse, $Out>
-    implements ClassCopyWith<$R, $In, $Out> {
-  BookCopyWith<$R, Book, Book> get data;
-  $R call({Book? data});
-  GetBookResponseCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
+abstract class GetBookResponseErrorCopyWith<
+    $R,
+    $In extends GetBookResponseError,
+    $Out> implements ClassCopyWith<$R, $In, $Out> {
+  $R call({String? code});
+  GetBookResponseErrorCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
       Then<$Out2, $R2> t);
 }
 
-class _GetBookResponseCopyWithImpl<$R, $Out>
-    extends ClassCopyWithBase<$R, GetBookResponse, $Out>
-    implements GetBookResponseCopyWith<$R, GetBookResponse, $Out> {
-  _GetBookResponseCopyWithImpl(super.value, super.then, super.then2);
+class _GetBookResponseErrorCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, GetBookResponseError, $Out>
+    implements GetBookResponseErrorCopyWith<$R, GetBookResponseError, $Out> {
+  _GetBookResponseErrorCopyWithImpl(super.value, super.then, super.then2);
 
   @override
-  late final ClassMapperBase<GetBookResponse> $mapper =
-      GetBookResponseMapper.ensureInitialized();
+  late final ClassMapperBase<GetBookResponseError> $mapper =
+      GetBookResponseErrorMapper.ensureInitialized();
   @override
-  BookCopyWith<$R, Book, Book> get data =>
-      ($value.data as Book).copyWith.$chain((v) => call(data: v));
+  $R call({Object? code = $none}) =>
+      $apply(FieldCopyWithData({if (code != $none) #code: code}));
   @override
-  $R call({Book? data}) =>
-      $apply(FieldCopyWithData({if (data != null) #data: data}));
-  @override
-  GetBookResponse $make(CopyWithData data) =>
-      GetBookResponse(data.get(#data, or: $value.data));
+  GetBookResponseError $make(CopyWithData data) =>
+      GetBookResponseError(code: data.get(#code, or: $value.code));
 
   @override
-  GetBookResponseCopyWith<$R2, GetBookResponse, $Out2> $chain<$R2, $Out2>(
-          Then<$Out2, $R2> t) =>
-      _GetBookResponseCopyWithImpl($value, $cast, t);
+  GetBookResponseErrorCopyWith<$R2, GetBookResponseError, $Out2>
+      $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
+          _GetBookResponseErrorCopyWithImpl($value, $cast, t);
 }

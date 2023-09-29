@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 import 'package:edge_library_data/edge_library_data.dart';
+import 'package:option_result/option_result.dart';
 
 FutureOr<Response> onRequest(
   RequestContext context,
@@ -26,9 +27,19 @@ Future<Response> _handleGet(
   final repository = context.read<BookRepository>();
   final book = await repository.getBookById(id);
 
-  if (book == null) return Response.json(statusCode: HttpStatus.notFound);
-
-  return Response(
-    body: GetBookResponse(book).toJson(),
-  );
+  return switch (book) {
+    Ok(:final value) when value == null => Response.json(
+        body: const GetBookResponse.err(
+          GetBookResponseError(code: 'NOT_FOUND'),
+        ).toMap(),
+      ),
+    Ok(:final value) when value != null => Response.json(
+        body: GetBookResponse.ok(value).toMap(),
+      ),
+    _ => Response.json(
+        body: const GetBookResponse.err(
+          GetBookResponseError(),
+        ).toMap(),
+      ),
+  };
 }
