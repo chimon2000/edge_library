@@ -22,7 +22,7 @@ class PatronRepository {
           .eq('borrowed_books.patron_id', patron?.id)
           .filter('borrowed_books.is_active', 'eq', true)
           .withConverter((data) => data.map(BookMapper.fromMap));
-      print(borrowedBooks);
+
       return patron?.copyWith(borrowed: borrowedBooks.toList());
     } catch (e) {
       print(e);
