@@ -1,3 +1,4 @@
+import 'package:edge_library_app/shared/env/env.dart';
 import 'package:edge_library_app/shared/logger/logger.dart';
 import 'package:equatable/equatable.dart';
 
@@ -12,7 +13,7 @@ import 'package:passage_flutter/passage_flutter_models/passage_user.dart';
 import 'package:riverpod/riverpod.dart';
 
 final identityFacadeProvider = Provider<IdentityFacade>((ref) {
-  return IdentityFacade(PassageFlutter());
+  return IdentityFacade(PassageFlutter(Env.passageAppId));
 });
 
 class IdentityFacade with LoggerMixin {
