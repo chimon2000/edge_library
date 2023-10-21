@@ -25,4 +25,9 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+.idea
+*.iml
+
+pubspec_overrides.yaml
+
 edge_library_app/lib/shared/env/env.g.dart

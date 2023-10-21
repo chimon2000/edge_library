@@ -1,0 +1,11 @@
+name: my_project
+
+packages:
+  - edge_library_*/
+  - edge_library_*/packages/*
+
+scripts:
+  analyze:
+    exec: dart analyze .
+  build:
+    exec: dart run build_runner build
