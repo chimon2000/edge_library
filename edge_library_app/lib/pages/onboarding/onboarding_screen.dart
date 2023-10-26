@@ -26,18 +26,7 @@ class OnboardingScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          TextButton(
-            child: const Text('Sign Out'),
-            onPressed: () async {
-              await ref.read(identityFacadeProvider).signOut();
-              ref.invalidate(currentUserProvider);
-              if (context.mounted) context.go('/');
-            },
-          )
-        ],
-      ),
+      appBar: const LibraryAppBar(),
       body: Form(
         key: ref.watch(_formKeyProvider),
         child: ExpandedScrollingColumn(

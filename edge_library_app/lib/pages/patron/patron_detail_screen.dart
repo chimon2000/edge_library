@@ -19,18 +19,8 @@ class PatronDetailScreen extends ConsumerWidget {
     final patronAsync = ref.watch(patronProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Profile"),
-        actions: [
-          TextButton(
-            child: const Text('Sign Out'),
-            onPressed: () async {
-              await ref.read(identityFacadeProvider).signOut();
-              ref.invalidate(currentUserProvider);
-              if (context.mounted) context.go('/');
-            },
-          )
-        ],
+      appBar: const LibraryAppBar(
+        title: Text("My Profile"),
       ),
       body: patronAsync.when(
         data: PatronDetailDataView.new,

@@ -1,12 +1,10 @@
+import 'package:edge_library_app/app/app_bar.dart';
 import 'package:edge_library_app/entities/book/widgets/book_summary_view.dart';
 import 'package:edge_library_app/pages/book_detail/book_detail_notifier.dart';
-import 'package:edge_library_app/routing/router.dart';
-import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/widgets/error_retry_view.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class BookDetailScreen extends ConsumerWidget {
   const BookDetailScreen({
@@ -21,18 +19,8 @@ class BookDetailScreen extends ConsumerWidget {
     final bookAsync = ref.watch(bookDetailNotifierProvider(id));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Edge's Library"),
-        actions: [
-          TextButton(
-            child: const Text('Sign Out'),
-            onPressed: () async {
-              await ref.read(identityFacadeProvider).signOut();
-              ref.invalidate(currentUserProvider);
-              if (context.mounted) context.go('/');
-            },
-          )
-        ],
+      appBar: const LibraryAppBar(
+        title: Text("Edge's Library"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: bookAsync.maybeWhen(

@@ -18,18 +18,8 @@ class BooksListScreen extends ConsumerWidget {
     final booksListAsync = ref.watch(booksListProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Edge's Library"),
-        actions: [
-          TextButton(
-            child: const Text('Sign Out'),
-            onPressed: () async {
-              await ref.read(identityFacadeProvider).signOut();
-              ref.invalidate(currentUserProvider);
-              if (context.mounted) context.go('/');
-            },
-          )
-        ],
+      appBar: const LibraryAppBar(
+        title: Text("Edge's Library"),
       ),
       floatingActionButton: const PatronFloatingActionButton(),
       body: booksListAsync.when(
