@@ -1,7 +1,6 @@
+import 'package:edge_library_app/app/app_bar.dart';
 import 'package:edge_library_app/entities/book/widgets/book_list_tile.dart';
 import 'package:edge_library_app/entities/patron/model/patron.dart';
-import 'package:edge_library_app/routing/router.dart';
-import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
 import 'package:edge_library_app/shared/extensions/build_context.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 import 'package:flutter/material.dart';

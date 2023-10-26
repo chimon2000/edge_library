@@ -1,7 +1,7 @@
+import 'package:edge_library_app/app/app_bar.dart';
 import 'package:edge_library_app/entities/patron/model/patron.dart';
 import 'package:edge_library_app/pages/onboarding/onboarding_notifier.dart';
-import 'package:edge_library_app/routing/router.dart';
-import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
+import 'package:edge_library_app/providers.dart';
 import 'package:edge_library_app/shared/extensions/build_context.dart';
 import 'package:flextras/flextras.dart';
 import 'package:flutter/material.dart';

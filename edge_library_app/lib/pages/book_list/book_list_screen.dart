@@ -1,12 +1,10 @@
+import 'package:edge_library_app/app/app_bar.dart';
 import 'package:edge_library_app/entities/book/model/book.dart';
 import 'package:edge_library_app/entities/book/widgets/book_list_view.dart';
 import 'package:edge_library_app/entities/patron/widgets/patron_floating_action_button.dart';
-import 'package:edge_library_app/shared/api/identity/identity_facade.dart';
-import 'package:edge_library_app/routing/router.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class BooksListScreen extends ConsumerWidget {
   const BooksListScreen({
@@ -32,6 +30,7 @@ class BooksListScreen extends ConsumerWidget {
 }
 
 class BooksListLoadingView extends StatelessWidget {
+  @visibleForTesting
   const BooksListLoadingView({super.key});
 
   @override
@@ -54,14 +53,13 @@ class BooksListErrorView extends StatelessWidget {
 }
 
 class BooksListDataView extends StatelessWidget {
+  @visibleForTesting
   const BooksListDataView(this.data, {super.key});
 
   final List<Book> data;
 
   @override
   Widget build(BuildContext context) {
-    return BookListView(
-      books: data,
-    );
+    return BookListView(books: data);
   }
 }

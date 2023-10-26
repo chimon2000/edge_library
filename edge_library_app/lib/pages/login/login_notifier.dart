@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:edge_library_app/shared/logger/logger.dart';
 import 'package:equatable/equatable.dart';
 import 'package:option_result/option_result.dart';

@@ -1,9 +1,8 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:edge_library_app/providers.dart';
 import 'package:equatable/equatable.dart';
 import 'package:option_result/option_result.dart';
 import 'package:riverpod/riverpod.dart';
 
-import 'package:edge_library_app/routing/router.dart';
 import 'package:edge_library_app/shared/api/patron/patron_facade.dart';
 import 'package:edge_library_common/edge_library_common.dart';
 
