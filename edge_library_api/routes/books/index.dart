@@ -17,11 +17,11 @@ Future<Response> _handleGet(RequestContext context) async {
   final search = context.request.uri.queryParameters['search'];
 
   final books = await repository.getBooks(search);
-
-  return switch (books) {
-    Ok(:final value) => Response.json(
-        body: GetBooksResponse.ok(value).toMap(),
-      ),
-    _ => Response.json(statusCode: HttpStatus.internalServerError),
-  };
+  print(books);
+  return Response.json(
+    body: switch (books) {
+      Ok(:final value) => GetBooksResponse.ok(value).toMap(),
+      Err() => GetBooksResponse.err(GetBooksResponseError()),
+    },
+  );
 }
