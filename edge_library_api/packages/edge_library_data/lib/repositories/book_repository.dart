@@ -75,6 +75,7 @@ class BookRepository {
 
       return Ok(books.toList());
     } catch (e) {
+      print(e);
       return Err(Exception());
     }
   }
